@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         HIDIVE Subtitle Translator
 // @namespace    http://tampermonkey.net/
-// @version      2.5
-// @description  Translate HIDIVE subtitles from English to Spanish in real-time
+// @version      3.0
+// @description  Translate HIDIVE subtitles from English to Spanish in real-time using GPT-4
 // @author       Al.D.ro
 // @match        https://www.hidive.com/video/*
 // @grant        GM_xmlhttpRequest
@@ -12,13 +12,15 @@
 (function() {
     'use strict';
 
-    const openaiApiKey = 'YOUR_OPENAI_API_KEY';
+    const openaiApiKey = 'OPEN_AI_API_KEY';
     const translationCache = new Map();
     let lastTranslationTime = 0;
     const throttleDelay = 500;
 
     async function translateText(text, targetLanguage = 'es') {
+        console.log(`Translating text: ${text}`);
         if (translationCache.has(text)) {
+            console.log(`Cache hit for text: ${text}`);
             return translationCache.get(text);
         }
 
@@ -31,10 +33,10 @@
                     'Authorization': `Bearer ${openaiApiKey}`
                 },
                 data: JSON.stringify({
-                    model: 'gpt-3.5-turbo',
+                    model: 'gpt-4o',
                     messages: [{
                         role: 'user',
-                        content: `Translate the following text to Latin American Spanish for an anime TV show and avoid full stops: ${text}`
+                        content: `Translate the following text to Latin American Spanish for an anime TV show. Provide only the translated text without any quotation marks or additional information. Keep the translation accurate and true to the original meaning, while ensuring it sounds natural and appropriate for spoken dialogue. Maintain the emotional tone and context. Take into account that your response will be directly copied into the subtitles of the show: "${text}"`
                     }],
                     max_tokens: 60
                 }),
@@ -97,10 +99,11 @@
             }
 
             try {
-                const subtitleContainers = Array.from(document.querySelectorAll('.ds-text-track__text'));
+                const subtitleContainers = Array.from(document.querySelectorAll('.Q0.ds-text-track__text, .Q1.ds-text-track__text, .Q2.ds-text-track__text, .Q3.ds-text-track__text, .Q4.ds-text-track__text, .Q5.ds-text-track__text'));
                 let currentSubtitle = '';
                 subtitleContainers.forEach(container => {
                     if (container.innerText.trim() !== '') {
+                        console.log(`Found subtitle text in ${container.className}: ${container.innerText.trim()}`);
                         currentSubtitle += ' ' + container.innerText.trim();
                     }
                 });
@@ -134,6 +137,14 @@
             } catch (e) {
                 console.error('Error:', e);
             }
+
+            // Check and log non-subtitle containers for unexpected text
+            const nonSubtitleContainers = Array.from(document.querySelectorAll('body *:not(.Q0.ds-text-track__text):not(.Q1.ds-text-track__text):not(.Q2.ds-text-track__text):not(.Q3.ds-text-track__text):not(.Q4.ds-text-track__text):not(.Q5.ds-text-track__text)'));
+            nonSubtitleContainers.forEach(container => {
+                if (container.innerText.trim() !== '') {
+                    console.log(`Found non-subtitle text in ${container.className}: ${container.innerText.trim()}`);
+                }
+            });
         };
 
         const observer = new MutationObserver(processSubtitles);
@@ -150,6 +161,7 @@
         document.head.appendChild(style);
     }
 
+    console.log('HIDIVE Subtitle Translator script started');
     hideEnglishSubtitles();
     replaceSubtitles();
 })();
