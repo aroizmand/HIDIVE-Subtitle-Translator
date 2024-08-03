@@ -2,8 +2,8 @@
 // @name         HIDIVE Subtitle Translator
 // @namespace    http://tampermonkey.net/
 // @version      2.5
-// @description  Translate HIDIVE subtitles from English to any language in real-time
-// @author       YOUR_AUTHOR_NAME
+// @description  Translate HIDIVE subtitles from English to Spanish in real-time
+// @author       Al.D.ro
 // @match        https://www.hidive.com/video/*
 // @grant        GM_xmlhttpRequest
 // @connect      api.openai.com
@@ -34,7 +34,7 @@
                     model: 'gpt-3.5-turbo',
                     messages: [{
                         role: 'user',
-                        content: `Translate the following text to Latin American Spanish for an anime TV show: ${text}`
+                        content: `Translate the following text to Latin American Spanish for an anime TV show and avoid full stops: ${text}`
                     }],
                     max_tokens: 60
                 }),
@@ -72,15 +72,15 @@
         container.style.zIndex = '1000';
         container.style.fontFamily = 'Trebuchet MS, Arial, sans-serif';
         container.style.color = 'white';
-        container.style.fontSize = '2rem';
+        container.style.fontSize = '2.5rem';
         container.style.fontStyle = 'normal';
         container.style.wordWrap = 'break-word';
         container.style.padding = '0 10px';
         container.style.textShadow = `
-            -1px -1px 0 #000,
-            1px -1px 0 #000,
-            -1px 1px 0 #000,
-            1px 1px 0 #000
+            -2px -2px 0 #000,
+            2px -2px 0 #000,
+            -2px 2px 0 #000,
+            2px 2px 0 #000
         `;
         document.body.appendChild(container);
         return container;
@@ -98,36 +98,38 @@
 
             try {
                 const subtitleContainers = Array.from(document.querySelectorAll('.ds-text-track__text'));
-                if (subtitleContainers.length > 0) {
-                    let currentSubtitle = '';
-                    subtitleContainers.forEach(container => {
-                        if (container.innerText.trim() !== '') {
-                            currentSubtitle += ' ' + container.innerText.trim();
-                        }
-                    });
-                    currentSubtitle = currentSubtitle.trim();
-                    if (currentSubtitle && currentSubtitle !== lastSubtitle) {
-                        lastSubtitle = currentSubtitle;
-                        lastTranslationTime = now;
-                        console.log('Original subtitle:', currentSubtitle);
-                        const translatedSubtitle = await translateText(currentSubtitle, 'es');
-                        console.log('Translated subtitle:', translatedSubtitle);
+                let currentSubtitle = '';
+                subtitleContainers.forEach(container => {
+                    if (container.innerText.trim() !== '') {
+                        currentSubtitle += ' ' + container.innerText.trim();
+                    }
+                });
+                currentSubtitle = currentSubtitle.trim();
+                if (currentSubtitle && currentSubtitle !== lastSubtitle) {
+                    lastSubtitle = currentSubtitle;
+                    lastTranslationTime = now;
+                    console.log('Original subtitle:', currentSubtitle);
+                    const translatedSubtitle = await translateText(currentSubtitle, 'es');
+                    console.log('Translated subtitle:', translatedSubtitle);
 
-                        translationContainers.forEach(container => container.remove());
-                        translationContainers.length = 0;
+                    translationContainers.forEach(container => container.remove());
+                    translationContainers.length = 0;
 
+                    if (currentSubtitle.length === 0) {
+                        const container = createTranslationContainer(0);
+                        container.innerText = '';
+                        translationContainers.push(container);
+                    } else {
                         const lines = translatedSubtitle.split('\n');
                         lines.forEach((line, index) => {
                             const container = createTranslationContainer(index);
                             container.innerText = line;
                             translationContainers.push(container);
                         });
-                    } else if (currentSubtitle === '') {
-                        translationContainers.forEach(container => container.remove());
-                        translationContainers.length = 0;
                     }
-                } else {
-                    console.error('Subtitle containers not found');
+                } else if (currentSubtitle === '') {
+                    lastSubtitle = '';
+                    translationContainers.forEach(container => container.innerText = '');
                 }
             } catch (e) {
                 console.error('Error:', e);
