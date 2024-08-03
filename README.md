@@ -1,14 +1,12 @@
 # HIDIVE Subtitle Translator
 
-This Tampermonkey script translates HIDIVE subtitles from English to Latin American Spanish in real-time and hides the original English subtitles. You can also select a different target language for the translations.
+This Tampermonkey script translates HIDIVE subtitles from English to any language (default Spanish) in real-time. 
 
 ## Features
 
 - Translates subtitles using OpenAI's GPT-3.5-turbo model
-- Hides original English subtitles
-- Displays translated subtitles with a small black outline for better readability
-- Allows for multiline translations and ensures subtitles are centered
 - Option to select different target languages
+- Styles the subtitles like the ones in Crunchyroll
 
 ## Installation
 
@@ -44,9 +42,9 @@ You will need an OpenAI API key to use this script. Follow these steps:
 ### 1. Navigate to a HIDIVE Video
 
 1. Go to [HIDIVE](https://www.hidive.com/) and start playing any video.
-2. The script will automatically translate English subtitles to Latin American Spanish in real-time and hide the original English subtitles.
+2. The script will automatically translate English subtitles to your chosen language in real-time.
 
-### 2. Selecting a Different Target Language
+### 2. Selecting a Target Language
 
 If you want to translate to a different target language, follow these steps:
 
