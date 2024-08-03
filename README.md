@@ -34,7 +34,7 @@ You will need an OpenAI API key to use this script. Follow these steps:
 1. Open the Tampermonkey dashboard by clicking on the Tampermonkey icon in your browser toolbar and selecting "Dashboard".
 2. Click on the "+" icon to create a new script.
 3. Copy and paste the contents of `HIDIVE-Subtitle-Translator.user.js` into the editor.
-4. Replace `YOUR_OPENAI_API_KEY` in the script with your actual OpenAI API key.
+4. Replace `OPEN_AI_API_KEY` in the script with your actual OpenAI API key.
 5. Save the script.
 
 ## Usage
